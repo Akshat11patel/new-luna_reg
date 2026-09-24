@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Run History | LUNA-REG</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">
+    <div class="brand-mark">L</div>
+    <div><strong>LUNA-REG</strong><span>Registration History</span></div>
+  </a>
+  <nav><a href="{{ url_for('index') }}">New Run</a></nav>
+</header>
+
+<main>
+  <section class="result-hero">
+    <div>
+      <div class="eyebrow">REPRODUCIBLE RUN ARCHIVE</div>
+      <h1>Registration <span>history</span></h1>
+      <p>Each run is preserved as a separate registration_N folder.</p>
+    </div>
+  </section>
+
+  <div class="run-table history-table">
+    {% for run in runs %}
+    <a href="{{ url_for('result', run_name=run.name) }}" class="run-row">
+      <div class="run-id">#{{ "%02d"|format(run.number) }}</div>
+      <div>
+        <strong>{{ run.name }}</strong>
+        <span>{{ run.reference_sensor }} → {{ run.target_sensor }}</span>
+      </div>
+      <div><small>Branch</small><strong>{{ run.branch }}</strong></div>
+      <div><small>Inliers</small><strong>{{ run.inliers }}</strong></div>
+      <div><small>Inlier Ratio</small><strong>{% if run.inlier_ratio is number %}{{ "%.2f"|format(run.inlier_ratio) }}%{% else %}—{% endif %}</strong></div>
+      <div><small>RMSE</small><strong>{% if run.rmse is number %}{{ "%.3f"|format(run.rmse) }} px{% else %}—{% endif %}</strong></div>
+      <div class="status {{ 'accepted' if run.accepted else 'rejected' }}">
+        {{ 'ACCEPTED' if run.accepted else 'REJECTED' }}
+      </div>
+    </a>
+    {% else %}
+    <div class="empty-state">No registrations yet.</div>
+    {% endfor %}
+  </div>
+</main>
+</body>
+</html>

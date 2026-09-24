@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LUNA-REG | Lunar Image Registration</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="bg-orbit orbit-a"></div>
+<div class="bg-orbit orbit-b"></div>
+
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">
+    <div class="brand-mark">L</div>
+    <div>
+      <strong>LUNA-REG</strong>
+      <span>Chandrayaan-2 Registration Engine</span>
+    </div>
+  </a>
+  <nav>
+    <a href="#register">Register</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="{{ url_for('history') }}">History</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">MULTI-MODAL · SUN-ANGLE · SCALE-AWARE</div>
+      <h1>Align lunar imagery.<br><span>Measure the confidence.</span></h1>
+      <p>
+        Register OHRC, TMC-2 and IIRS observations using PDS4 metadata,
+        geographic overlap, SIFT/RIFT2, RUCO/TAT, robust homography and
+        conditional sub-pixel refinement.
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#register">Start Registration</a>
+        <a class="btn ghost" href="{{ url_for('history') }}">View Previous Runs</a>
+      </div>
+      <div class="hero-stats">
+        <div><strong>3</strong><span>Supported sensors</span></div>
+        <div><strong>2</strong><span>Input modes</span></div>
+        <div><strong>6×6</strong><span>Spatial match grid</span></div>
+        <div><strong>&lt;1 px</strong><span>Sub-pixel target</span></div>
+      </div>
+    </div>
+
+    <div class="moon-card">
+      <div class="moon"></div>
+      <div class="scan-line"></div>
+      <div class="moon-label top">REFERENCE</div>
+      <div class="moon-label bottom">TARGET → REFERENCE</div>
+      <div class="coordinates">87.4°S · lunar polar registration</div>
+    </div>
+  </section>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <section class="section" id="register">
+    <div class="section-heading">
+      <span>01</span>
+      <div>
+        <h2>New registration</h2>
+        <p>Upload two observations. Metadata mode is recommended for real Chandrayaan-2 PDS4 products.</p>
+      </div>
+    </div>
+
+    <form class="registration-panel" method="post" action="{{ url_for('register') }}" enctype="multipart/form-data" id="registration-form">
+      <div class="form-toolbar">
+        <div class="segmented">
+          <label>
+            <input type="radio" name="mode" value="metadata" checked>
+            <span>Image + XML</span>
+          </label>
+          <label>
+            <input type="radio" name="mode" value="image_only">
+            <span>Image only</span>
+          </label>
+        </div>
+
+        <div class="feature-select">
+          <label for="feature_method">Feature strategy</label>
+          <select id="feature_method" name="feature_method">
+            <option value="AUTO" selected>AUTO — SIFT → RIFT2 fallback</option>
+            <option value="SIFT">SIFT only</option>
+            <option value="RIFT2">RIFT2 only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sensor-grid">
+        <article class="upload-card" data-side="1">
+          <div class="upload-head">
+            <span class="input-number">01</span>
+            <div>
+              <h3>Image 1</h3>
+              <p>OHRC / TMC-2 / IIRS</p>
+            </div>
+          </div>
+
+          <label class="dropzone">
+            <input type="file" name="image1" accept=".png,.jpg,.jpeg,.tif,.tiff,.bmp,.img" required>
+            <div class="upload-icon">↥</div>
+            <strong>Select lunar image</strong>
+            <span>PNG, JPG, TIFF, BMP or raw PDS4 .IMG</span>
+            <em class="filename">No file selected</em>
+          </label>
+
+          <label class="xml-zone metadata-field">
+            <input type="file" name="xml1" accept=".xml">
+            <span>+</span>
+            <div>
+              <strong>Attach PDS4 XML</strong>
+              <small class="filename">No XML selected</small>
+            </div>
+          </label>
+
+          <label class="reference-radio image-only-field hidden">
+            <input type="radio" name="reference_choice" value="1" checked>
+            Use Image 1 as reference
+          </label>
+        </article>
+
+        <div class="pair-connector">
+          <div class="pair-line"></div>
+          <span>PAIR</span>
+          <div class="pair-line"></div>
+        </div>
+
+        <article class="upload-card" data-side="2">
+          <div class="upload-head">
+            <span class="input-number">02</span>
+            <div>
+              <h3>Image 2</h3>
+              <p>OHRC / TMC-2 / IIRS</p>
+            </div>
+          </div>
+
+          <label class="dropzone">
+            <input type="file" name="image2" accept=".png,.jpg,.jpeg,.tif,.tiff,.bmp,.img" required>
+            <div class="upload-icon">↥</div>
+            <strong>Select lunar image</strong>
+            <span>PNG, JPG, TIFF, BMP or raw PDS4 .IMG</span>
+            <em class="filename">No file selected</em>
+          </label>
+
+          <label class="xml-zone metadata-field">
+            <input type="file" name="xml2" accept=".xml">
+            <span>+</span>
+            <div>
+              <strong>Attach PDS4 XML</strong>
+              <small class="filename">No XML selected</small>
+            </div>
+          </label>
+
+          <label class="reference-radio image-only-field hidden">
+            <input type="radio" name="reference_choice" value="2">
+            Use Image 2 as reference
+          </label>
+        </article>
+      </div>
+
+      <div class="ps-checks">
+        <div><i>✓</i><span>Geographic overlap check</span></div>
+        <div><i>✓</i><span>Sun-angle analysis</span></div>
+        <div><i>✓</i><span>Scale / rotation diagnostics</span></div>
+        <div><i>✓</i><span>Uniform match distribution</span></div>
+        <div><i>✓</i><span>Sub-pixel quality metric</span></div>
+        <div><i>✓</i><span>Match-point export</span></div>
+      </div>
+
+      <button class="run-button" type="submit">
+        <span class="run-dot"></span>
+        RUN LUNA-REG
+        <small>Create a new registration_N result folder</small>
+      </button>
+
+      <div id="processing-overlay" class="processing-overlay hidden">
+        <div class="spinner"></div>
+        <h3>Registration started</h3>
+        <p>Large PDS4 products can take time. Keep this page open.</p>
+        <div class="processing-steps">
+          <span>Metadata</span><b>→</b><span>ROI</span><b>→</b><span>Features</span><b>→</b><span>RANSAC</span><b>→</b><span>Report</span>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section class="section" id="pipeline">
+    <div class="section-heading">
+      <span>02</span>
+      <div>
+        <h2>Registration pipeline</h2>
+        <p>The same steps executed by the Python processing engine.</p>
+      </div>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipe-node"><b>1</b><strong>Input</strong><small>Image + XML / image only</small></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node"><b>2</b><strong>Metadata & ROI</strong><small>PDS4 · GSD · sun angle · overlap</small></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node"><b>3</b><strong>Normalize</strong><small>Resolution · FMT · illumination</small></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node accent"><b>4</b><strong>SIFT / RIFT2</strong><small>Adaptive correspondence</small></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node"><b>5</b><strong>RUCO / TAT</strong><small>Topology + affine consistency</small></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node"><b>6</b><strong>RANSAC</strong><small>Homography + inliers</small></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node accent2"><b>7</b><strong>Validate</strong><small>RMSE · ratio · coverage</small></div>
+    </div>
+  </section>
+
+  {% if recent_runs %}
+  <section class="section">
+    <div class="section-heading">
+      <span>03</span>
+      <div>
+        <h2>Recent runs</h2>
+        <p>Every run remains available in its own registration_N folder.</p>
+      </div>
+    </div>
+
+    <div class="run-table">
+      {% for run in recent_runs %}
+      <a href="{{ url_for('result', run_name=run.name) }}" class="run-row">
+        <div class="run-id">#{{ "%02d"|format(run.number) }}</div>
+        <div>
+          <strong>{{ run.name }}</strong>
+          <span>{{ run.reference_sensor }} → {{ run.target_sensor }}</span>
+        </div>
+        <div><small>Branch</small><strong>{{ run.branch }}</strong></div>
+        <div><small>Inliers</small><strong>{{ run.inliers }}</strong></div>
+        <div><small>RMSE</small><strong>{% if run.rmse is number %}{{ "%.3f"|format(run.rmse) }} px{% else %}—{% endif %}</strong></div>
+        <div class="status {{ 'accepted' if run.accepted else 'rejected' }}">
+          {{ 'ACCEPTED' if run.accepted else 'REJECTED' }}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</main>
+
+<footer>
+  <strong>LUNA-REG</strong>
+  <span>Multi-modal lunar image correspondence · Chandrayaan-2</span>
+</footer>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

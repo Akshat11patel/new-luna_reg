@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ run_name }} | LUNA-REG</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">
+    <div class="brand-mark">L</div>
+    <div><strong>LUNA-REG</strong><span>Registration Result</span></div>
+  </a>
+  <nav>
+    <a href="{{ url_for('index') }}">New Run</a>
+    <a href="{{ url_for('history') }}">History</a>
+  </nav>
+</header>
+
+<main>
+  <section class="result-hero">
+    <div>
+      <div class="eyebrow">{{ run_name|upper }}</div>
+      <h1>Registration <span>result</span></h1>
+      <p>{{ report.get('direction', 'TARGET → REFERENCE') }}</p>
+    </div>
+    {% set accepted = quality.get('accepted', report.get('accepted', False)) %}
+    <div class="big-status {{ 'accepted' if accepted else 'rejected' }}">
+      <span>{{ '✓' if accepted else '×' }}</span>
+      <div>
+        <small>FINAL DECISION</small>
+        <strong>{{ 'ACCEPTED' if accepted else 'REJECTED' }}</strong>
+      </div>
+    </div>
+  </section>
+
+  {% if report.get('reason') %}
+  <div class="alert error">{{ report.get('reason') }}</div>
+  {% endif %}
+
+  <section class="metric-grid">
+    <article>
+      <span>Inliers</span>
+      <strong>{{ quality.get('ransac_inliers', '—') }}</strong>
+      <small>RANSAC verified</small>
+    </article>
+    <article>
+      <span>Inlier ratio</span>
+      <strong>{% if quality.get('inlier_ratio_percent') is number %}{{ "%.2f"|format(quality.get('inlier_ratio_percent')) }}%{% else %}—{% endif %}</strong>
+      <small>Geometric consistency</small>
+    </article>
+    <article>
+      <span>Final RMSE</span>
+      <strong>{% if quality.get('final_rmse_pixels') is number %}{{ "%.3f"|format(quality.get('final_rmse_pixels')) }} px{% else %}—{% endif %}</strong>
+      <small>{{ 'Sub-pixel' if quality.get('subpixel_accuracy_achieved') else 'Registration residual' }}</small>
+    </article>
+    <article>
+      <span>Spatial coverage</span>
+      <strong>{% if quality.get('spatial_coverage_percent') is number %}{{ "%.2f"|format(quality.get('spatial_coverage_percent')) }}%{% else %}—{% endif %}</strong>
+      <small>Uniformity of inliers</small>
+    </article>
+    <article>
+      <span>Reprojection error</span>
+      <strong>{% if quality.get('mean_reprojection_error_px') is number %}{{ "%.3f"|format(quality.get('mean_reprojection_error_px')) }} px{% else %}—{% endif %}</strong>
+      <small>Mean inlier error</small>
+    </article>
+    <article>
+      <span>Selected branch</span>
+      <strong class="text-metric">{{ report.get('selected_branch', '—') }}</strong>
+      <small>SIFT / RIFT2 strategy</small>
+    </article>
+  </section>
+
+  {% if gallery %}
+  <section class="section compact">
+    <div class="section-heading">
+      <span>01</span>
+      <div><h2>Visual outputs</h2><p>Inspect alignment, residuals and correspondence distribution.</p></div>
+    </div>
+
+    <div class="gallery">
+      {% for item in gallery %}
+      <article class="gallery-card">
+        <a href="{{ item.url }}" target="_blank">
+          <img src="{{ item.url }}" alt="{{ item.title }}">
+        </a>
+        <div>
+          <strong>{{ item.title }}</strong>
+          <a href="{{ url_for('download_file', run_name=run_name, filename=item.filename) }}">Download</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="two-col section compact">
+    <article class="info-panel">
+      <h3>Registration configuration</h3>
+      <dl>
+        <div><dt>Input mode</dt><dd>{{ report.get('input_mode', '—') }}</dd></div>
+        <div><dt>Reference sensor</dt><dd>{{ role.get('reference_sensor', '—') }}</dd></div>
+        <div><dt>Target sensor</dt><dd>{{ role.get('target_sensor', '—') }}</dd></div>
+        <div><dt>Reference GSD</dt><dd>{{ role.get('reference_gsd_m_per_pixel', '—') }}</dd></div>
+        <div><dt>Target GSD</dt><dd>{{ role.get('target_gsd_m_per_pixel', '—') }}</dd></div>
+        <div><dt>Illumination severity</dt><dd>{{ illumination.get('severity', '—') }}</dd></div>
+        <div><dt>Sun elevation Δ</dt><dd>{{ illumination.get('sun_elevation_difference_deg', '—') }}</dd></div>
+        <div><dt>Sun azimuth Δ</dt><dd>{{ illumination.get('sun_azimuth_difference_deg', '—') }}</dd></div>
+      </dl>
+    </article>
+
+    <article class="info-panel">
+      <h3>Validation</h3>
+      <div class="validation-badge {{ 'accepted' if validation.get('accepted') else 'rejected' }}">
+        {{ validation.get('geometric_consistency', 'NOT AVAILABLE') }}
+      </div>
+      <ul class="reason-list">
+        {% for reason in validation.get('reasons', []) %}
+        <li>{{ reason }}</li>
+        {% endfor %}
+        {% if not validation.get('reasons') and report.get('reason') %}
+        <li>{{ report.get('reason') }}</li>
+        {% endif %}
+      </ul>
+      <div class="subpixel-row">
+        <span>Sub-pixel attempted</span><b>{{ quality.get('subpixel_attempted', False) }}</b>
+      </div>
+      <div class="subpixel-row">
+        <span>Refinement accepted</span><b>{{ quality.get('subpixel_refinement_accepted', False) }}</b>
+      </div>
+      <div class="subpixel-row">
+        <span>Internal &lt;1 px target</span><b>{{ quality.get('subpixel_accuracy_achieved', False) }}</b>
+      </div>
+    </article>
+  </section>
+
+  <section class="section compact">
+    <div class="section-heading">
+      <span>02</span>
+      <div><h2>Generated data</h2><p>PS-ready outputs for reproducibility and scientific inspection.</p></div>
+    </div>
+
+    <div class="download-grid">
+      {% for filename in files %}
+      <a class="download-card" href="{{ url_for('download_file', run_name=run_name, filename=filename) }}">
+        <div class="file-icon">
+          {% if filename.endswith('.csv') %}CSV
+          {% elif filename.endswith('.json') %}JSON
+          {% elif filename.endswith('.txt') %}TXT
+          {% elif filename.endswith('.png') %}IMG
+          {% else %}FILE{% endif %}
+        </div>
+        <div><strong>{{ filename }}</strong><span>Download result file</span></div>
+        <b>↓</b>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="bottom-actions">
+    <a class="btn primary" href="{{ url_for('index') }}">Run another registration</a>
+    <a class="btn ghost" href="{{ url_for('history') }}">Open history</a>
+  </div>
+</main>
+</body>
+</html>

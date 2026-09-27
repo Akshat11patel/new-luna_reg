@@ -18,6 +18,7 @@
       <span>Pre-Run Instructions & Project Status</span>
     </div>
   </a>
+
   <nav>
     <a href="#how-to-use">How to Use</a>
     <a href="#pipeline-guide">Pipeline</a>
@@ -27,62 +28,202 @@
 </header>
 
 <main>
+
   <section class="instruction-hero">
     <div>
       <div class="eyebrow">READ BEFORE STARTING</div>
+
       <h1>LUNA-REG <span>user instructions</span></h1>
+
       <p>
         LUNA-REG is a lunar image-registration system designed for Chandrayaan-2
         OHRC, TMC-2 and IIRS imagery. Read the workflow below before uploading a pair.
       </p>
+
       <div class="instruction-callout">
-        <strong>Recommended:</strong> For real Chandrayaan-2 products, use
-        <b>Image + XML</b> mode so geographic overlap, sensor information, GSD and
-        illumination metadata can be used during registration.
+        <strong>Current recommendation:</strong>
+        Use <b>Image Only</b> mode for the present LUNA-REG implementation,
+        demonstrations and controlled registration tests.
+        <b>Image + XML</b> is the future recommended mode for full
+        metadata-assisted Chandrayaan-2 registration.
       </div>
+
       <div class="hero-actions">
         <a class="btn primary" href="#how-to-use">Read Instructions</a>
-        <a class="btn ghost" href="{{ url_for('index') }}">I Understand — Start LUNA-REG →</a>
+        <a class="btn ghost" href="{{ url_for('index') }}">
+          I Understand — Start LUNA-REG →
+        </a>
       </div>
     </div>
+
     <aside class="instruction-summary-card">
       <div class="summary-kicker">CURRENT SYSTEM</div>
+
       <div class="summary-grid">
-        <div><strong>3</strong><span>OHRC · TMC-2 · IIRS</span></div>
-        <div><strong>2</strong><span>Input modes</span></div>
-        <div><strong>3</strong><span>SIFT · RIFT2 · AUTO</span></div>
-        <div><strong>6×6</strong><span>Spatial balancing grid</span></div>
+        <div>
+          <strong>3</strong>
+          <span>OHRC · TMC-2 · IIRS</span>
+        </div>
+
+        <div>
+          <strong>2</strong>
+          <span>Input modes</span>
+        </div>
+
+        <div>
+          <strong>3</strong>
+          <span>SIFT · RIFT2 · AUTO</span>
+        </div>
+
+        <div>
+          <strong>6×6</strong>
+          <span>Spatial balancing grid</span>
+        </div>
       </div>
-      <p>Registration quality is checked using inliers, inlier ratio, reprojection error / RMSE and spatial coverage.</p>
+
+      <p>
+        Registration quality is checked using inliers, inlier ratio,
+        reprojection error / RMSE and spatial coverage.
+      </p>
     </aside>
   </section>
 
+
   <section class="section instruction-section" id="how-to-use">
+
     <div class="section-heading">
       <span>01</span>
-      <div><h2>How to use the website</h2><p>Follow these steps for every registration run.</p></div>
+
+      <div>
+        <h2>How to use the website</h2>
+        <p>Follow these steps for every registration run.</p>
+      </div>
     </div>
 
     <div class="instruction-steps">
-      <article><span>1</span><div><h3>Choose the input mode</h3><p><b>Image + XML</b> is recommended for real PDS4 products. <b>Image Only</b> is intended for testing or when metadata is unavailable.</p></div></article>
-      <article><span>2</span><div><h3>Upload two observations</h3><p>Select Image 1 and Image 2. Supported website inputs include PNG, JPG, TIFF, BMP and PDS4 .IMG. In metadata mode, attach the matching XML label for each .IMG.</p></div></article>
-      <article><span>3</span><div><h3>Select the matching strategy</h3><p><b>AUTO</b> is recommended. It uses the adaptive workflow with SIFT and RIFT2 fallback. You can also force SIFT-only or RIFT2-only for experiments.</p></div></article>
-      <article><span>4</span><div><h3>Set the reference in Image Only mode</h3><p>When metadata is not available, choose which uploaded image should act as the reference. In metadata mode, LUNA-REG can use sensor/GSD information to help assign roles.</p></div></article>
-      <article><span>5</span><div><h3>Run registration</h3><p>The system analyzes scale, rotation, illumination and image conditions; generates correspondences; applies RUCO/TAT filtering, spatial balancing and robust geometric verification.</p></div></article>
-      <article><span>6</span><div><h3>Read the result dashboard</h3><p>Check ACCEPTED / REJECTED, inliers, inlier ratio, RMSE, reprojection error, spatial coverage, selected branch, overlays, difference image and diagnostic match images.</p></div></article>
+
+      <article>
+        <span>1</span>
+        <div>
+          <h3>Choose the input mode</h3>
+
+          <p>
+            <b>Image Only</b> is the current recommended mode for the present
+            implementation, demonstrations and controlled registration tests.
+            <b>Image + XML</b> is the future recommended mode for full
+            metadata-assisted Chandrayaan-2 processing.
+          </p>
+        </div>
+      </article>
+
+
+      <article>
+        <span>2</span>
+
+        <div>
+          <h3>Upload two observations</h3>
+
+          <p>
+            Select Image 1 and Image 2. Supported website inputs include
+            PNG, JPG, TIFF, BMP and PDS4 .IMG.
+            In metadata mode, attach the matching XML label for each .IMG.
+          </p>
+        </div>
+      </article>
+
+
+      <article>
+        <span>3</span>
+
+        <div>
+          <h3>Select the matching strategy</h3>
+
+          <p>
+            <b>AUTO</b> is recommended.
+            It uses the adaptive workflow with SIFT and RIFT2 fallback.
+            You can also force SIFT-only or RIFT2-only for experiments.
+          </p>
+        </div>
+      </article>
+
+
+      <article>
+        <span>4</span>
+
+        <div>
+          <h3>Set the reference in Image Only mode</h3>
+
+          <p>
+            When metadata is not available, choose which uploaded image
+            should act as the reference.
+
+            In metadata mode, LUNA-REG can use sensor/GSD information
+            to help assign roles.
+          </p>
+        </div>
+      </article>
+
+
+      <article>
+        <span>5</span>
+
+        <div>
+          <h3>Run registration</h3>
+
+          <p>
+            The system analyzes scale, rotation, illumination and image conditions;
+            generates correspondences; applies RUCO/TAT filtering,
+            spatial balancing and robust geometric verification.
+          </p>
+        </div>
+      </article>
+
+
+      <article>
+        <span>6</span>
+
+        <div>
+          <h3>Read the result dashboard</h3>
+
+          <p>
+            Check ACCEPTED / REJECTED, inliers, inlier ratio, RMSE,
+            reprojection error, spatial coverage, selected branch,
+            overlays, difference image and diagnostic match images.
+          </p>
+        </div>
+      </article>
+
     </div>
   </section>
 
+
   <section class="section instruction-section" id="mode-guide">
+
     <div class="section-heading">
       <span>02</span>
-      <div><h2>Input mode guide</h2><p>Use the mode that matches your data.</p></div>
+
+      <div>
+        <h2>Input mode guide</h2>
+        <p>Use the mode that matches your data.</p>
+      </div>
     </div>
+
+
     <div class="mode-guide-grid">
+
       <article class="mode-guide-card recommended">
-        <div class="mode-tag">RECOMMENDED</div>
+
+        <div class="mode-tag">
+          FUTURE RECOMMENDED
+        </div>
+
         <h3>Image + Metadata</h3>
-        <p>Provide Image 1 + XML and Image 2 + XML.</p>
+
+        <p>
+          Future target mode for full metadata-assisted
+          Chandrayaan-2 registration.
+        </p>
+
         <ul>
           <li>Automatic OHRC / TMC-2 / IIRS identification</li>
           <li>GSD and scale information</li>
@@ -91,101 +232,368 @@
           <li>Geographic overlap and common ROI extraction</li>
           <li>Georeferenced output information when available</li>
         </ul>
+
       </article>
+
+
       <article class="mode-guide-card">
-        <div class="mode-tag secondary">TESTING MODE</div>
+
+        <div class="mode-tag secondary">
+          CURRENT RECOMMENDED
+        </div>
+
         <h3>Image Only</h3>
-        <p>Provide only two normal or supported image files.</p>
+
+        <p>
+          Current recommended mode for the present
+          LUNA-REG implementation and demonstrations.
+        </p>
+
         <ul>
-          <li>Useful for synthetic and controlled tests</li>
+          <li>Recommended for current demonstrations and controlled tests</li>
           <li>User selects the reference image</li>
           <li>No metadata-based geographic overlap validation</li>
           <li>No metadata-driven sensor/GSD/sun-angle reasoning</li>
           <li>Registration depends entirely on visual correspondence</li>
         </ul>
+
       </article>
+
     </div>
   </section>
+
 
   <section class="section instruction-section" id="pipeline-guide">
+
     <div class="section-heading">
       <span>03</span>
-      <div><h2>Current LUNA-REG pipeline</h2><p>This is the workflow currently implemented in the project.</p></div>
+
+      <div>
+        <h2>Current LUNA-REG pipeline</h2>
+
+        <p>
+          This is the workflow currently implemented in the project.
+        </p>
+      </div>
     </div>
+
+
     <div class="instruction-image-card">
-      <img src="{{ url_for('static', filename='images/luna_reg_pipeline.jpeg') }}" alt="LUNA-REG registration pipeline">
+
+      <img
+        src="{{ url_for('static', filename='images/luna_reg_pipeline.jpeg') }}"
+        alt="LUNA-REG registration pipeline"
+      >
+
     </div>
+
+
     <div class="pipeline-note-grid">
-      <div><strong>Adaptive preprocessing</strong><span>Grayscale / normalization, CLAHE and illumination-aware representations where needed.</span></div>
-      <div><strong>Adaptive FMT</strong><span>Provides coarse scale and rotation diagnostics and can support scale normalization.</span></div>
-      <div><strong>ARSS</strong><span>Uses image conditions and available metadata to select an appropriate matching strategy.</span></div>
-      <div><strong>RUCO / TAT</strong><span>Improves correspondence reliability with filtering, geometric consistency and spatial balancing.</span></div>
-      <div><strong>RANSAC / MAGSAC stage</strong><span>Rejects outliers and estimates the geometric transformation from verified correspondences.</span></div>
-      <div><strong>Quality validation</strong><span>Uses inliers, inlier ratio, reprojection error / RMSE, spatial coverage and match distribution.</span></div>
+
+      <div>
+        <strong>Adaptive preprocessing</strong>
+
+        <span>
+          Grayscale / normalization, CLAHE and illumination-aware
+          representations where needed.
+        </span>
+      </div>
+
+
+      <div>
+        <strong>Adaptive FMT</strong>
+
+        <span>
+          Provides coarse scale and rotation diagnostics
+          and can support scale normalization.
+        </span>
+      </div>
+
+
+      <div>
+        <strong>ARSS</strong>
+
+        <span>
+          Uses image conditions and available metadata
+          to select an appropriate matching strategy.
+        </span>
+      </div>
+
+
+      <div>
+        <strong>RUCO / TAT</strong>
+
+        <span>
+          Improves correspondence reliability with filtering,
+          geometric consistency and spatial balancing.
+        </span>
+      </div>
+
+
+      <div>
+        <strong>RANSAC / MAGSAC stage</strong>
+
+        <span>
+          Rejects outliers and estimates the geometric
+          transformation from verified correspondences.
+        </span>
+      </div>
+
+
+      <div>
+        <strong>Quality validation</strong>
+
+        <span>
+          Uses inliers, inlier ratio, reprojection error / RMSE,
+          spatial coverage and match distribution.
+        </span>
+      </div>
+
     </div>
   </section>
+
 
   <section class="section instruction-section warning-section">
+
     <div class="section-heading">
       <span>04</span>
-      <div><h2>Important usage notes</h2><p>Registration is only meaningful when the image pair contains sufficient common lunar terrain.</p></div>
+
+      <div>
+        <h2>Important usage notes</h2>
+
+        <p>
+          Registration is only meaningful when the image pair
+          contains sufficient common lunar terrain.
+        </p>
+      </div>
     </div>
+
+
     <div class="warning-grid">
-      <article><h3>Overlap matters</h3><p>Two different regions should be rejected. For real products, metadata mode checks geographic footprint overlap before the expensive registration stages.</p></article>
-      <article><h3>Large files take time</h3><p>Raw Chandrayaan-2 .IMG products can be very large. Runtime depends on image size, overlap, selected feature strategy and whether fallback processing is required.</p></article>
-      <article><h3>Do not judge by one metric</h3><p>A high inlier ratio alone is not enough. Inspect RMSE/reprojection error, spatial coverage, match distribution and visual overlays together.</p></article>
-      <article><h3>RIFT2 is the heavier fallback</h3><p>Use it for difficult multi-modal or illumination-different pairs when SIFT is insufficient. AUTO is usually the safest starting strategy.</p></article>
+
+      <article>
+
+        <h3>Overlap matters</h3>
+
+        <p>
+          Two different regions should be rejected.
+          For real products, metadata mode checks geographic
+          footprint overlap before the expensive registration stages.
+        </p>
+
+      </article>
+
+
+      <article>
+
+        <h3>Large files take time</h3>
+
+        <p>
+          Raw Chandrayaan-2 .IMG products can be very large.
+          Runtime depends on image size, overlap, selected feature strategy
+          and whether fallback processing is required.
+        </p>
+
+      </article>
+
+
+      <article>
+
+        <h3>Do not judge by one metric</h3>
+
+        <p>
+          A high inlier ratio alone is not enough.
+          Inspect RMSE/reprojection error, spatial coverage,
+          match distribution and visual overlays together.
+        </p>
+
+      </article>
+
+
+      <article>
+
+        <h3>RIFT2 is the heavier fallback</h3>
+
+        <p>
+          Use it for difficult multi-modal or illumination-different pairs
+          when SIFT is insufficient.
+          AUTO is usually the safest starting strategy.
+        </p>
+
+      </article>
+
     </div>
   </section>
+
 
   <section class="section instruction-section" id="future-work">
+
     <div class="section-heading">
+
       <span>05</span>
-      <div><h2>Remaining & future work</h2><p>Planned improvements beyond the current implementation.</p></div>
+
+      <div>
+
+        <h2>Remaining & future work</h2>
+
+        <p>
+          Planned improvements beyond the current implementation.
+        </p>
+
+      </div>
     </div>
+
+
     <div class="instruction-image-card">
-      <img src="{{ url_for('static', filename='images/luna_reg_future_work.jpeg') }}" alt="LUNA-REG remaining and future work">
+
+      <img
+        src="{{ url_for('static', filename='images/luna_reg_future_work.jpeg') }}"
+        alt="LUNA-REG remaining and future work"
+      >
+
     </div>
+
+
     <div class="future-columns">
+
       <article>
+
         <h3>Remaining work — short term</h3>
+
         <ol>
-          <li><b>Integrate SuperPoint + LightGlue into ARSS</b> as an additional deep-learning matcher alongside SIFT and RIFT2.</li>
-          <li><b>Benchmark all matchers</b> on OHRC, TMC-2 and IIRS pairs using the same quality metrics.</li>
-          <li><b>Improve RUCO</b> correspondence scoring, filtering, spatial balancing and outlier rejection.</li>
-          <li><b>Strengthen Image Only mode</b> for difficult scale, rotation and illumination differences.</li>
-          <li><b>Validate on more real overlapping pairs</b> and difficult lunar edge cases.</li>
+
+          <li>
+            <b>Integrate SuperPoint + LightGlue into ARSS</b>
+            as an additional deep-learning matcher alongside SIFT and RIFT2.
+          </li>
+
+          <li>
+            <b>Benchmark all matchers</b>
+            on OHRC, TMC-2 and IIRS pairs using the same quality metrics.
+          </li>
+
+          <li>
+            <b>Improve RUCO</b>
+            correspondence scoring, filtering, spatial balancing
+            and outlier rejection.
+          </li>
+
+          <li>
+            <b>Strengthen Image Only mode</b>
+            for difficult scale, rotation and illumination differences.
+          </li>
+
+          <li>
+            <b>Validate on more real overlapping pairs</b>
+            and difficult lunar edge cases.
+          </li>
+
         </ol>
+
       </article>
+
+
       <article>
+
         <h3>Future work — long term</h3>
+
         <ol>
-          <li><b>Smarter ARSS</b> condition-based strategy selection across classical and learned matchers.</li>
-          <li><b>Faster processing</b> through GPU acceleration, caching and code optimization.</li>
-          <li><b>Advanced refinement</b> with stronger sub-pixel and local-deformation handling where scientifically justified.</li>
-          <li><b>Confidence-aware results</b> with interpretable confidence scores and quality maps.</li>
-          <li><b>Batch registration & mosaicing</b> for multiple overlapping lunar observations.</li>
-          <li><b>Web deployment & collaboration</b> with improved remote access, reporting and robustness.</li>
-          <li><b>Generalization</b> to other planetary missions and future datasets.</li>
+
+          <li>
+            <b>Smarter ARSS</b>
+            condition-based strategy selection across classical
+            and learned matchers.
+          </li>
+
+          <li>
+            <b>Faster processing</b>
+            through GPU acceleration, caching and code optimization.
+          </li>
+
+          <li>
+            <b>Advanced refinement</b>
+            with stronger sub-pixel and local-deformation handling
+            where scientifically justified.
+          </li>
+
+          <li>
+            <b>Confidence-aware results</b>
+            with interpretable confidence scores and quality maps.
+          </li>
+
+          <li>
+            <b>Batch registration & mosaicing</b>
+            for multiple overlapping lunar observations.
+          </li>
+
+          <li>
+            <b>Web deployment & collaboration</b>
+            with improved remote access, reporting and robustness.
+          </li>
+
+          <li>
+            <b>Generalization</b>
+            to other planetary missions and future datasets.
+          </li>
+
         </ol>
+
       </article>
+
     </div>
   </section>
+
 
   <section class="instruction-final-cta">
+
     <div>
-      <div class="eyebrow">READY TO RUN</div>
-      <h2>Start a new lunar registration</h2>
-      <p>Use metadata mode whenever matching PDS4 XML labels are available.</p>
+
+      <div class="eyebrow">
+        READY TO RUN
+      </div>
+
+      <h2>
+        Start a new lunar registration
+      </h2>
+
+      <p>
+        For the current implementation, start with
+        <b>Image Only</b> mode.
+
+        <b>Image + Metadata</b> remains the future recommended
+        workflow for full metadata-assisted registration.
+      </p>
+
     </div>
-    <a class="btn primary instruction-start-btn" href="{{ url_for('index') }}">I Understand — Start LUNA-REG →</a>
+
+
+    <a
+      class="btn primary instruction-start-btn"
+      href="{{ url_for('index') }}"
+    >
+      I Understand — Start LUNA-REG →
+    </a>
+
   </section>
+
 </main>
 
+
 <footer>
-  <span>LUNA-REG · DIVYA VYAPAK</span>
-  <span>Smart India Hackathon 2026</span>
-  <span>Chandrayaan-2 Lunar Image Registration</span>
+
+  <span>
+    LUNA-REG · DIVYA VYAPAK
+  </span>
+
+  <span>
+    Smart India Hackathon 2026
+  </span>
+
+  <span>
+    Chandrayaan-2 Lunar Image Registration
+  </span>
+
 </footer>
+
 </body>
 </html>

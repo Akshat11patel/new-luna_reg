@@ -408,6 +408,12 @@ def run_image_only_registration(
 
 
 @app.get("/")
+def instructions():
+    """Landing page shown before users enter the LUNA-REG application."""
+    return render_template("instructions.html")
+
+
+@app.get("/home")
 def index():
     return render_template(
         "index.html",

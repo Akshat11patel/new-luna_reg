@@ -1,127 +1,96 @@
-        print(f"FMT scale ratio        : {fmt_scale:.4f}")
-        print(
-            f"FMT rotation estimate  : "
-            f"{fmt_rotation:.2f} degrees"
-        )
-        print(f"FMT confidence         : {fmt_confidence:.4f}")
+"""
+LUNA-REG INPUT / MAIN MODULE
+============================
+Run this file:
 
-        if fmt_confidence >= proc.FMT_STRONG_CONFIDENCE:
-            print(
-                "FMT decision           : "
-                "STRONG ENOUGH for safe scale assistance"
-            )
-        else:
-            print("FMT decision           : DIAGNOSTIC ONLY")
+    python input.py
 
-        moving, fmt_normalization = (
-            proc.apply_fmt_scale_normalization(
-                reference,
-                moving,
-                fmt_scale,
-                fmt_confidence,
-            )
-        )
+Responsibilities:
+- choose images / XML metadata
+- read OHRC, TMC-2 and IIRS PDS4 data
+- build the IIRS 2-D registration representation
+- choose reference/target and matching method
+- call processing.py
+- hand all generated results to output.py
+"""
 
-        scale_info["fmt"] = {
-            "estimated_scale_ratio": fmt_scale,
-            "estimated_rotation_deg": fmt_rotation,
-            "confidence": fmt_confidence,
-            **fmt_normalization,
-        }
+import cv2
+import math
+import re
+import xml.etree.ElementTree as ET
+import numpy as np
+from pathlib import Path
+try:
+    import tkinter as tk
+    from tkinter import filedialog
+except ImportError:
+    tk = None
+    filedialog = None
 
-        print(
-            "FMT scale applied      :",
-            fmt_normalization["fmt_scale_applied"],
-        )
-        print("Target after FMT shape :", moving.shape)
+import processing as proc
+import output as out
 
-        print("\n[4] Image-only illumination analysis")
-        illum = proc.illumination_analysis(
-            reference,
-            moving,
-            None,
-            None,
-        )
 
-        for key, value in illum.items():
-            print(f"{key}: {value}")
+# ============================================================
+# INPUT / PDS4 CONFIGURATION
+# ============================================================
 
-        mode_name = "WITHOUT_METADATA"
+MAX_WORKING_DIM = proc.MAX_WORKING_DIM
+ROI_PADDING_FRACTION = 0.08
+MIN_ROI_PIXELS = 256
 
-    # ============================================================
-    # COMMON REGISTRATION PIPELINE
-    # ============================================================
-    out.save_working_images(run_dir, reference, moving)
+IIRS_REGISTRATION_MODE = "AUTO_SHORTWAVE_COMPOSITE"
+IIRS_AUTO_COMPOSITE_BANDS = 7
+IIRS_AUTO_SHORTWAVE_FRACTION = 0.20
+IIRS_MANUAL_BAND_NUMBER = None
+IIRS_MAX_WORKING_DIM = 3000
 
-    print(
-        "\n[7] Feature method"
-        if use_metadata
-        else "\n[4] Feature method"
-    )
-    feature_method = choose_feature_method()
-    print("Selected feature method:", feature_method)
+MOON_MEAN_RADIUS_M = 1737400.0
 
-    print(
-        "\n[8] Registration"
-        if use_metadata
-        else "\n[5] Registration"
-    )
-
-    result, attempts = proc.adaptive_registration(
-        reference,
-        moving,
-        illum,
-        feature_method,
-    )
-
-    # All branch/intermediate images are written only by output.py.
-    out.save_attempt_diagnostics(
-        run_dir,
-        reference,
-        moving,
-        attempts,
-    )
-
-    out.print_final_quality(
-        result,
-        mode_name,
-        role_selection,
-    )
-
-    validation_summary = out.print_validation_summary(result)
-
-    out.save_final_outputs(
-        run_dir=run_dir,
-        reference=reference,
-        moving=moving,
-        result=result,
-        illumination=illum,
-        scale_info=scale_info,
-        reference_metadata=reference_metadata,
-        moving_metadata=moving_metadata,
-        overlap_info=overlap_info,
-        input_mode=mode_name,
-        metadata_used=use_metadata,
-        role_selection=role_selection,
-        validation_summary=validation_summary,
-    )
-
-    print("\nAttempt summary:")
-    for attempt_result, _, _ in attempts:
-        print(
-            f"  {attempt_result['branch']}: "
-            f"inliers={attempt_result['inliers']}, "
-            f"ratio={attempt_result['inlier_ratio']:.2f}%, "
-            f"error="
-            f"{attempt_result['mean_reprojection_error']:.3f}px, "
-            f"coverage="
-            f"{attempt_result['spatial_coverage']:.2f}%, "
-            f"pass={proc.quality_pass(attempt_result)}"
+def choose_file(title, patterns):
+    if tk is None or filedialog is None:
+        raise RuntimeError(
+            "Desktop file picker is unavailable in web/server mode. "
+            "Use the Flask web upload interface instead."
         )
 
-    print("\nAll files for this run are stored in:")
-    print(run_dir)
+    root = tk.Tk()
+    root.withdraw()
+    root.attributes("-topmost", True)
+    path = filedialog.askopenfilename(
+        title=title,
+        filetypes=patterns
+    )
+    root.destroy()
+    return path
 
+def choose_image(title):
+    path = choose_file(
+        title,
+        [("Lunar / image files", "*.img *.IMG *.png *.jpg *.jpeg *.tif *.tiff *.bmp"),
+         ("PDS IMG", "*.img *.IMG"),
+         ("Normal images", "*.png *.jpg *.jpeg *.tif *.tiff *.bmp"),
+         ("All files", "*.*")]
+    )
+    if not path:
+        raise RuntimeError(f"No image selected: {title}")
+    return path
 
-if __name__ == "__main__":
-    main()
+def load_image(path):
+    """Load an image safely from disk, including Windows/Unicode paths."""
+    path = str(path)
+
+    # np.fromfile + cv2.imdecode is more reliable than cv2.imread for some
+    # Windows/OneDrive paths containing Unicode characters.
+    try:
+        data = np.fromfile(path, dtype=np.uint8)
+        image = cv2.imdecode(data, cv2.IMREAD_COLOR)
+    except Exception:
+        image = None
+
+    # Normal OpenCV fallback.
+    if image is None:
+        image = cv2.imread(path, cv2.IMREAD_COLOR)
+
+    if image is None:
+        raise RuntimeError(
